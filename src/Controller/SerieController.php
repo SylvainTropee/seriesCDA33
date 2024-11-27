@@ -12,24 +12,42 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/series', name: 'series_')]
 class SerieController extends AbstractController
 {
-    #[Route('', name: 'list', methods: ['GET'])]
-    public function list(SerieRepository $serieRepository): Response
+    #[Route('/{page}/{offset}', name: 'list', requirements: ['page' => '\d+'], methods: ['GET'])]
+    public function list(SerieRepository $serieRepository, int $page = 1, int $offset = 50): Response
     {
-        $series = $serieRepository->findAll();
-
+//        $series = $serieRepository->findAll();
 //        $series = $serieRepository->findBy([], ["popularity" => "DESC"], 30, 20);
+//        $series = $serieRepository->findByGenresAndPopularity('comedy');
+
+        $maxPage = ceil($serieRepository->count([]) / $offset);
+        //s'assurer que la page page minimale est 1 et que la page max c'est la page max
+        if($page < 1 ){
+            return $this->redirectToRoute('series_list', ['page' => 1]);
+        }
+        if($page > $maxPage){
+            return $this->redirectToRoute('series_list', ['page' => $maxPage]);
+        }
+
+        $series = $serieRepository->findWithPagination($page);
 
         //TODO renvoyer la liste de nos séries
         return $this->render('serie/list.html.twig', [
-            'series' => $series
+            'series' => $series,
+            'currentPage' => $page,
+            'maxPage' => $maxPage
         ]);
     }
 
-    #[Route('/{id}', name: 'detail', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    public function detail(int $id, SerieRepository $serieRepository): Response
+    #[Route('/detail/{id}', name: 'detail', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    //paramConverter implicite
+    public function detail(Serie $serie, SerieRepository $serieRepository): Response
     {
-
-        $serie = $serieRepository->find($id);
+//
+//        $serie = $serieRepository->find($id);
+//
+//        if(!$serie){
+//            throw $this->createNotFoundException("Oops ! Serie not found !");
+//        }
 
         //TODO renvoyer une série spécifique
         return $this->render('serie/detail.html.twig', [

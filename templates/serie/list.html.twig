@@ -3,6 +3,20 @@
 {% block body %}
     <h1>List of TV Show !</h1>
 
+    <div class="flex_div flex_between">
+        {% if currentPage > 1 %}
+            <a href="{{ path('series_list', {'page': currentPage - 1}) }}">
+                <button>Previous page</button>
+            </a>
+        {% else %}
+            <div></div>
+        {% endif %}
+        {% if currentPage < maxPage %}
+            <a href="{{ path('series_list', {'page': currentPage + 1}) }}">
+                <button>Next page</button>
+            </a>
+        {% endif %}
+    </div>
     <section class="series-list">
         {% for serie in series %}
             <article>

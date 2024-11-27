@@ -16,28 +16,51 @@ class SerieRepository extends ServiceEntityRepository
         parent::__construct($registry, Serie::class);
     }
 
-    //    /**
-    //     * @return Serie[] Returns an array of Serie objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
 
-    //    public function findOneBySomeField($value): ?Serie
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findByGenresAndPopularity(string $genre)
+    {
+
+        //en DQL
+//        $dql = "
+//                SELECT s FROM App\Entity\Serie AS s
+//                WHERE s.genres LIKE :genre
+//                ORDER BY s.popularity DESC
+//                ";
+//        $em = $this->getEntityManager();
+//        $query = $em->createQuery($dql);
+//
+//        $query->setParameter('genre', "%$genre%");
+//        $query->setMaxResults(50);
+
+
+        //en querybuilder
+        $qb = $this->createQueryBuilder('s');
+        $qb
+            ->andWhere("s.genres LIKE :genre")
+            ->setParameter('genre', "%$genre%")
+            ->addOrderBy('s.popularity', 'DESC');
+
+        $query = $qb->getQuery();
+        $query->setMaxResults(50);
+
+        return $query->getResult();
+    }
+
+
+    public function findWithPagination(int $page, int $limit = 50)
+    {
+
+        $qb = $this->createQueryBuilder('s');
+        $qb->addOrderBy('s.popularity', 'DESC');
+
+        $offset = ($page - 1) * $limit;
+
+        $qb
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $qb->getQuery()->getResult();
+    }
+
+
 }
