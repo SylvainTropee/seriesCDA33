@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>{% block title %}Series {% endblock %}</title>
     <link rel="icon" href="{{ asset("img/icon.png") }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Parkinsans:wght@300..800&display=swap" rel="stylesheet">
 
     {#    <link rel="stylesheet" href="{{ asset('styles/app.css') }}"> #}
 
@@ -27,5 +30,6 @@
     </footer>
 </div>
 
+{% block extraStyle %}{% endblock %}
 </body>
 </html>
