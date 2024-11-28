@@ -21,6 +21,13 @@
     <header>
         <img src="{{ asset('img/logo.svg') }}" alt="Series">
         {% include 'menu/nav.html.twig' %}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="flash flash-{{ label }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
     </header>
     <main>
         {% block body %}{% endblock %}

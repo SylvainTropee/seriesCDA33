@@ -3,11 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\Serie;
+use App\Form\SerieType;
 use App\Repository\SerieRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Constraints\Date;
+
 
 #[Route('/series', name: 'series_')]
 class SerieController extends AbstractController
@@ -21,16 +26,16 @@ class SerieController extends AbstractController
 
         $maxPage = ceil($serieRepository->count([]) / $offset);
         //s'assurer que la page page minimale est 1 et que la page max c'est la page max
-        if($page < 1 ){
+        //sinon on redirige vers la page 1 ou la page max
+        if ($page < 1) {
             return $this->redirectToRoute('series_list', ['page' => 1]);
         }
-        if($page > $maxPage){
+        if ($page > $maxPage) {
             return $this->redirectToRoute('series_list', ['page' => $maxPage]);
         }
 
-        $series = $serieRepository->findWithPagination($page);
+        $series = $serieRepository->findWithPagination($page, $offset);
 
-        //TODO renvoyer la liste de nos séries
         return $this->render('serie/list.html.twig', [
             'series' => $series,
             'currentPage' => $page,
@@ -40,7 +45,9 @@ class SerieController extends AbstractController
 
     #[Route('/detail/{id}', name: 'detail', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     //paramConverter implicite
-    public function detail(Serie $serie, SerieRepository $serieRepository): Response
+        //le paramètre est converti automatiquement en instance de série
+        // à utiliser maintenant MapEntity
+    public function detail(/*#[MapEntity(mapping: ['id' => 'id'])]*/ Serie $serie): Response
     {
 //
 //        $serie = $serieRepository->find($id);
@@ -56,41 +63,31 @@ class SerieController extends AbstractController
     }
 
     #[Route('/add', name: 'add', methods: ['GET', 'POST'])]
-    public function add(EntityManagerInterface $entityManager): Response
+    public function add(
+        Request                $request,
+        EntityManagerInterface $entityManager
+    ): Response
     {
 
         $serie = new Serie();
-        $serie
-            ->setBackdrop("backdrop.png")
-            ->setDateCreated(new \DateTime())
-            ->setName("The gentlemen")
-            ->setGenres("Gangsters")
-            ->setVote(8)
-            ->setFirstAirDate(new \DateTime('-1 year'))
-            ->setOverview("Un truc de gansters")
-            ->setPopularity(450)
-            ->setPoster('poster.png')
-            ->setStatus("returning")
-            ->setTmdbId(1234);
+        $serieForm = $this->createForm(SerieType::class, $serie);
 
-        dump($serie);
+        $serieForm->handleRequest($request);
 
-        $entityManager->persist($serie);
-        $entityManager->flush();
+        if ($serieForm->isSubmitted()) {
 
-        dump($serie);
+            $entityManager->persist($serie);
+            $entityManager->flush();
 
-        $serie->setName("The gentlewomen");
-        $entityManager->flush();
-
-        dump($serie);
-
-        $entityManager->remove($serie);
-        $entityManager->flush();
+            $this->addFlash('success', "The Tv Show " . $serie->getName() . " has been created");
+            return $this->redirectToRoute('series_detail', ['id' => $serie->getId()]);
+        }
 
 
         //TODO renvoyer un formulaire d'ajout de série
-        return $this->render('serie/add.html.twig');
+        return $this->render('serie/add.html.twig', [
+            'serieForm' => $serieForm
+        ]);
     }
 
 

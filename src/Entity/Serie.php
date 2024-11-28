@@ -6,6 +6,7 @@ use App\Repository\SerieRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: SerieRepository::class)]
 class Serie
 {
@@ -212,5 +213,10 @@ class Serie
         $this->dateModified = $dateModified;
 
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function saveSerie(){
+        $this->setDateCreated(new \DateTime());
     }
 }
