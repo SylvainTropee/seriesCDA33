@@ -69,12 +69,13 @@ class SerieController extends AbstractController
     ): Response
     {
 
+
         $serie = new Serie();
         $serieForm = $this->createForm(SerieType::class, $serie);
 
         $serieForm->handleRequest($request);
 
-        if ($serieForm->isSubmitted()) {
+        if ($serieForm->isSubmitted() && $serieForm->isValid()) {
 
             $entityManager->persist($serie);
             $entityManager->flush();

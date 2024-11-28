@@ -5,8 +5,11 @@ namespace App\Entity;
 use App\Repository\SerieRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\HasLifecycleCallbacks]
+#[UniqueEntity(fields: ['name'])]
 #[ORM\Entity(repositoryClass: SerieRepository::class)]
 class Serie
 {
@@ -16,15 +19,20 @@ class Serie
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Please enter a name for the TV Show !")]
+    #[Assert\Length(max : 255, maxMessage: "Max {{ limit }} characters")]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(min: 2, minMessage: "Min {{ limit }} characters or nothing !")]
     private ?string $overview = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\Choice(choices: ['ended', 'returning', 'canceled'])]
     private ?string $status = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 3, scale: 1)]
+    #[Assert\Range(notInRangeMessage: "Vote must be between {{ min }} and {{ max }}", min: 0, max: 10)]
     private ?string $vote = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 6, scale: 2)]
@@ -34,9 +42,11 @@ class Serie
     private ?string $genres = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\LessThan(propertyPath: 'lastAirDate')]
     private ?\DateTimeInterface $firstAirDate = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\GreaterThan(propertyPath: 'firstAirDate')]
     private ?\DateTimeInterface $lastAirDate = null;
 
     #[ORM\Column(length: 255)]
@@ -136,7 +146,7 @@ class Serie
         return $this->firstAirDate;
     }
 
-    public function setFirstAirDate(\DateTimeInterface $firstAirDate): static
+    public function setFirstAirDate(?\DateTimeInterface $firstAirDate): static
     {
         $this->firstAirDate = $firstAirDate;
 
