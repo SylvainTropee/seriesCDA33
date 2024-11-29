@@ -8,6 +8,7 @@ use App\Repository\SerieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -84,7 +85,20 @@ class SerieController extends AbstractController
 
         if ($serieForm->isSubmitted() && $serieForm->isValid()) {
 
-            $serie->setGenres(implode(' / ',$serieForm->get('genres')->getData()));
+            $backdrop = $serieForm->get('backdrop')->getData();
+
+            //dd($backdrop);
+            if ($backdrop) {
+                /**
+                 * @var UploadedFile $backdrop
+                 */
+                $fileName = $serie->getName() . '-' . uniqid() . '.' . $backdrop->guessExtension();
+                $backdrop->move("img/backdrops", $fileName);
+
+                $serie->setBackdrop($fileName);
+            }
+
+            $serie->setGenres(implode(' / ', $serieForm->get('genres')->getData()));
             $entityManager->persist($serie);
             $entityManager->flush();
 
