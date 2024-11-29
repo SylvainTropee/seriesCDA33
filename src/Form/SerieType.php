@@ -20,7 +20,6 @@ class SerieType extends AbstractType
             ->add('overview', TextareaType::class, [
                 'label' => 'Synopsis',
                 'required' => false,
-                'mapped' => false
             ])
             ->add('status', ChoiceType::class, [
                 'choices' => [
@@ -50,8 +49,11 @@ class SerieType extends AbstractType
                     'Western' => 'western',
                     'SF' => 'SF',
                     'Comedy' => 'comedy',
-                    'Polar' => 'polar'
-                ]
+                    'Polar' => 'polar',
+                ],
+                'multiple' => true,
+                'expanded' => true,
+                'mapped' => false
             ])
             ->add('firstAirDate', null, [
                 'widget' => 'single_text',
