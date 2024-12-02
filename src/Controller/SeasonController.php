@@ -16,14 +16,14 @@ class SeasonController extends AbstractController
 {
     #[Route('/add/{serieId}', name: 'add')]
     public function add(
-        Request $request,
+        Request                $request,
         EntityManagerInterface $entityManager,
-        SerieRepository $serieRepository,
-        int $serieId = null): Response
+        SerieRepository        $serieRepository,
+        int                    $serieId = null): Response
     {
 
         $season = new Season();
-        if($serieId){
+        if ($serieId) {
             $serie = $serieRepository->find($serieId);
             $season->setNumber(count($serie->getSeasons()) + 1);
             $season->setSerie($serie);
@@ -48,16 +48,34 @@ class SeasonController extends AbstractController
     }
 
     #[Route('/edit/{id}', name: 'edit')]
-    public function edit(): Response
+    public function edit(Season $season, Request $request, EntityManagerInterface $entityManager): Response
     {
-        //TODO envoie formulaire de modif
-        return $this->render('season/edit.html.twig');
+        $seasonForm = $this->createForm(SeasonType::class, $season);
+
+        $seasonForm->handleRequest($request);
+
+        if ($seasonForm->isSubmitted() && $seasonForm->isValid()) {
+            $season->setDateModified(new \DateTime());
+            $entityManager->persist($season);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Season updated !');
+            return $this->redirectToRoute('series_detail', ['id' => $season->getSerie()->getId()]);
+        }
+
+        return $this->render('season/edit.html.twig', [
+            'seasonForm' => $seasonForm
+        ]);
     }
 
     #[Route('/delete/{id}', name: 'delete')]
-    public function delete(): Response
+    public function delete(Season $season, EntityManagerInterface $entityManager): Response
     {
-        //TODO suprresion de la saison  + redirection
-        return $this->render('season/edit.html.twig');
+        $entityManager->remove($season);
+        $entityManager->flush();
+
+        $this->addFlash("success", 'Season deleted !');
+
+        return $this->redirectToRoute('series_detail', ['id' => $season->getSerie()->getId()]);
     }
 }
