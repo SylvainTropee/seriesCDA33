@@ -7,7 +7,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 
-class AppFixtures extends Fixture
+class SerieFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
@@ -29,6 +29,7 @@ class AppFixtures extends Fixture
                 ->setGenres($faker->randomElement(["Western", "SF", "Fantasy", "Drama"]))
                 ->setLastAirDate($faker->dateTimeBetween($serie->getFirstAirDate()));
 
+            //$this->addReference("serie-$i", $serie);
             $manager->persist($serie);
         }
 

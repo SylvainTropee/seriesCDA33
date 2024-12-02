@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\Date;
 #[Route('/series', name: 'series_')]
 class SerieController extends AbstractController
 {
-    #[Route('/{page}/{offset}', name: 'list', requirements: ['page' => '\d+'], methods: ['GET'])]
+    #[Route('/{page}', name: 'list', requirements: ['page' => '\d+'], methods: ['GET'])]
     public function list(SerieRepository $serieRepository, int $page = 1, int $offset = 50): Response
     {
 //        $series = $serieRepository->findAll();
