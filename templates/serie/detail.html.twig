@@ -17,8 +17,28 @@
                 <div>Aired from {{ serie.firstAirDate | date('Y-m-d') }}
                     to {{ serie.lastAirDate | date('Y-m-d') }}</div>
                 <div>{{ serie.overview | nl2br }}</div>
+                <div><a href="{{ path('season_add', {'serieId' : serie.id }) }}"><button>Add a season</button></a></div>
             </div>
         </article>
+
+        <div class="seasons">
+
+            {% for season in serie.seasons %}
+            <article>
+                <div>
+                    <img src="{{ asset('img/posters/seasons/' ~ season.poster) }}" alt=" {{  serie.name }}">
+                </div>
+
+                <div>
+                    <div># {{ season.number }}</div>
+                    <div>Aired from {{ season.firstAirDate | date('Y-m-d') }}</div>
+                    <div>{{ season.overview | nl2br }}</div>
+                </div>
+            </article>
+
+            {% endfor %}
+        </div>
+
     </section>
 
 
