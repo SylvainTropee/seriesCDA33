@@ -17,12 +17,14 @@
                 <div>Aired from {{ serie.firstAirDate | date('Y-m-d') }}
                     to {{ serie.lastAirDate | date('Y-m-d') }}</div>
                 <div>{{ serie.overview | nl2br }}</div>
-                <div><a href="{{ path('season_add', {'serieId' : serie.id }) }}">
-                        <button>Add a season</button>
-                        <a href="{{ path('series_delete', {'id' : serie.id }) }}">
-                            <button>Delete !</button>
-                        </a>
-                    </a></div>
+                {% if app.user %}
+                    <div><a href="{{ path('season_add', {'serieId' : serie.id }) }}">
+                            <button>Add a season</button>
+                            <a href="{{ path('series_delete', {'id' : serie.id }) }}">
+                                <button>Delete !</button>
+                            </a>
+                        </a></div>
+                {% endif %}
             </div>
         </article>
 
@@ -38,11 +40,15 @@
                         <div># {{ season.number }}</div>
                         <div>Aired from {{ season.firstAirDate | date('Y-m-d') }}</div>
                         <div>{{ season.overview | nl2br }}</div>
-                        <div><a href="{{ path('season_edit', {'id' : season.id }) }}">
-                                <button>Update a season</button>
-                                <a href="{{ path('season_delete', {'id' : season.id }) }}">
-                                    <button>Delete a season</button>
-                            </a></div>
+
+                        {% if app.user %}
+                            <div><a href="{{ path('season_edit', {'id' : season.id }) }}">
+                                    <button>Update a season</button>
+                                    <a href="{{ path('season_delete', {'id' : season.id }) }}">
+                                        <button>Delete a season</button>
+                                    </a>
+                            </div>
+                        {% endif %}
                     </div>
                 </article>
 

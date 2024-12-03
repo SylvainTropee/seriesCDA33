@@ -3,7 +3,16 @@
         <li><a href="{{ path('main_home') }}">Home</a></li>
         <li><a href="{{ path('main_test') }}">Test</a></li>
         <li><a href="{{ path('series_list') }}">All TV Show</a></li>
-        <li><a href="{{ path('series_add')}}">Add a new TV Show</a></li>
-        <li><a href="{{ path('season_add')}}">Add a new Season</a></li>
+        {% if app.user %}
+            <li><a href="{{ path('series_add') }}">Add a new TV Show</a></li>
+            <li><a href="{{ path('season_add') }}">Add a new Season</a></li>
+            {% if is_granted("ROLE_ADMIN") %}
+                <li><a href="">Dashboard Admin</a></li>
+            {% endif %}
+            <li><a href="{{ path('app_logout') }}">Logout ({{ app.user.firstname }})</a></li>
+        {% else %}
+            <li><a href="{{ path('app_register') }}">Register</a></li>
+            <li><a href="{{ path('app_login') }}">Sign in</a></li>
+        {% endif %}
     </ul>
 </nav>

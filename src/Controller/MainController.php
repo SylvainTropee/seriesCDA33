@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -17,6 +18,13 @@ class MainController extends AbstractController
     {
         $username = "<h2>Sylvain</h2>";
         $serie = ["name" => "Emily in Paris", "year" => 2020];
+
+        /**
+         * @var User $user
+         */
+        $user = $this->getUser();
+
+
 
         return $this->render('main/home.html.twig', [
             "serie" => $serie,
