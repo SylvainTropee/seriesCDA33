@@ -21,9 +21,7 @@ use Symfony\Component\Validator\Constraints\Date;
 class SerieController extends AbstractController
 {
 
-    public function __construct(private FileUploader $fileUploader)
-    {
-    }
+
 
     #[Route('/{page}', name: 'list', requirements: ['page' => '\d+'], methods: ['GET'])]
     public function list(SerieRepository $serieRepository, int $page = 1, int $offset = 50): Response
@@ -77,7 +75,7 @@ class SerieController extends AbstractController
         Request                $request,
         EntityManagerInterface $entityManager,
         SerieRepository        $serieRepository,
-//        FileUploader           $fileUploader,
+        FileUploader           $fileUploader,
         int                    $id = null
     ): Response
     {
@@ -98,7 +96,7 @@ if ($serieForm->isSubmitted() && $serieForm->isValid()) {
 
     //dd($backdrop);
     if ($backdrop) {
-        $fileName = $this->fileUploader->upload($backdrop, $this->getParameter('backdrop_path'), $serie->getName());
+        $fileName = $fileUploader->upload($backdrop, $this->getParameter('backdrop_path'), $serie->getName());
         $serie->setBackdrop($fileName);
     }
 
