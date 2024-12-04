@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Serie;
 use App\Form\SerieType;
+use App\HelperUtilService\FileUploader;
 use App\Repository\SerieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -19,6 +20,11 @@ use Symfony\Component\Validator\Constraints\Date;
 #[Route('/series', name: 'series_')]
 class SerieController extends AbstractController
 {
+
+    public function __construct(private FileUploader $fileUploader)
+    {
+    }
+
     #[Route('/{page}', name: 'list', requirements: ['page' => '\d+'], methods: ['GET'])]
     public function list(SerieRepository $serieRepository, int $page = 1, int $offset = 50): Response
     {
@@ -71,6 +77,7 @@ class SerieController extends AbstractController
         Request                $request,
         EntityManagerInterface $entityManager,
         SerieRepository        $serieRepository,
+//        FileUploader           $fileUploader,
         int                    $id = null
     ): Response
     {
@@ -80,51 +87,47 @@ class SerieController extends AbstractController
             throw $this->createNotFoundException('No such serie !');
         }
 
-        $serieForm = $this->createForm(SerieType::class, $serie);
+$serieForm = $this->createForm(SerieType::class, $serie);
 
-        $serieForm->get('genres')->setData(explode(' / ', $serie->getGenres()));
-        $serieForm->handleRequest($request);
+$serieForm->get('genres')->setData(explode(' / ', $serie->getGenres()));
+$serieForm->handleRequest($request);
 
-        if ($serieForm->isSubmitted() && $serieForm->isValid()) {
+if ($serieForm->isSubmitted() && $serieForm->isValid()) {
 
-            $backdrop = $serieForm->get('backdrop')->getData();
+    $backdrop = $serieForm->get('backdrop')->getData();
 
-            //dd($backdrop);
-            if ($backdrop) {
-                /**
-                 * @var UploadedFile $backdrop
-                 */
-                $fileName = $serie->getName() . '-' . uniqid() . '.' . $backdrop->guessExtension();
-                $backdrop->move("img/backdrops", $fileName);
-
-                $serie->setBackdrop($fileName);
-            }
-
-            $serie->setGenres(implode(' / ', $serieForm->get('genres')->getData()));
-            $entityManager->persist($serie);
-            $entityManager->flush();
-
-            $this->addFlash('success', "The Tv Show " . $serie->getName() . " has been updated");
-            return $this->redirectToRoute('series_detail', ['id' => $serie->getId()]);
-        }
-
-        //TODO renvoyer un formulaire d'ajout de série
-        return $this->render('serie/save.html.twig', [
-            'serieForm' => $serieForm,
-            'serieId' => $id
-        ]);
+    //dd($backdrop);
+    if ($backdrop) {
+        $fileName = $this->fileUploader->upload($backdrop, $this->getParameter('backdrop_path'), $serie->getName());
+        $serie->setBackdrop($fileName);
     }
 
+    $serie->setGenres(implode(' / ', $serieForm->get('genres')->getData()));
+    $entityManager->persist($serie);
+    $entityManager->flush();
 
-    #[Route('/delete/{id}', name: 'delete', requirements: ['id' => '\d+'], methods: ['GET'])]
+    $this->addFlash('success', "The Tv Show " . $serie->getName() . " has been updated");
+    return $this->redirectToRoute('series_detail', ['id' => $serie->getId()]);
+}
+
+//TODO renvoyer un formulaire d'ajout de série
+return $this->render('serie/save.html.twig', [
+    'serieForm' => $serieForm,
+    'serieId' => $id
+]);
+}
+
+
+#[
+Route('/delete/{id}', name: 'delete', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function delete(Serie $serie, EntityManagerInterface $entityManager): Response
-    {
+{
 
-        $entityManager->remove($serie);
-        $entityManager->flush();
+    $entityManager->remove($serie);
+    $entityManager->flush();
 
-        $this->addFlash('success', 'Serie has been removed !');
-        return $this->redirectToRoute('series_list');
-    }
+    $this->addFlash('success', 'Serie has been removed !');
+    return $this->redirectToRoute('series_list');
+}
 
 }
