@@ -2,6 +2,10 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use App\Repository\SerieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,6 +18,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(fields: ['name'])]
 #[ORM\Entity(repositoryClass: SerieRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post()
+    ],
+    normalizationContext: ['groups' => 'serie-api']
+)]
 class Serie
 {
     #[ORM\Id]
@@ -24,7 +36,7 @@ class Serie
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Please enter a name for the TV Show !")]
-    #[Assert\Length(max : 255, maxMessage: "Max {{ limit }} characters")]
+    #[Assert\Length(max: 255, maxMessage: "Max {{ limit }} characters")]
     #[Groups('serie-api')]
     private ?string $name = null;
 
@@ -245,7 +257,8 @@ class Serie
     }
 
     #[ORM\PrePersist]
-    public function saveSerie(){
+    public function saveSerie()
+    {
         $this->setDateCreated(new \DateTime());
     }
 
