@@ -12,7 +12,7 @@
             <div class="serie-details-infos">
                 <div>{{ serie.name }}</div>
                 <div>{{ serie.genres }}</div>
-                <div>Users rating : {{ serie.vote }}</div>
+                <div>Users rating : {{ serie.vote }} / Like <span id="serie-nblike">{{ serie.nbLike }}</span></div>
                 <div>Serie status : {{ serie.status }}</div>
                 <div>Aired from {{ serie.firstAirDate | date('Y-m-d') }}
                     to {{ serie.lastAirDate | date('Y-m-d') }}</div>
@@ -23,6 +23,8 @@
                             <a href="{{ path('series_delete', {'id' : serie.id }) }}">
                                 <button>Delete !</button>
                             </a>
+                            <button class="btn-like" value="1">Like !</button>
+                            <button class="btn-like" value="-1">Dislike !</button>
                         </a></div>
                 {% endif %}
             </div>
@@ -44,9 +46,10 @@
                         {% if app.user %}
                             <div><a href="{{ path('season_edit', {'id' : season.id }) }}">
                                     <button>Update a season</button>
-                                    <a href="{{ path('season_delete', {'id' : season.id }) }}">
-                                        <button>Delete a season</button>
-                                    </a>
+                                </a>
+                                <a href="{{ path('season_delete', {'id' : season.id }) }}">
+                                    <button>Delete a season</button>
+                                </a>
                             </div>
                         {% endif %}
                     </div>
@@ -72,4 +75,55 @@
         }
     </style>
 {% endblock %}
+
+
+
+
+{% block extraJs %}
+    <script>
+
+        let buttons = Array.from(document.querySelectorAll('.btn-like'));
+        let url = "{{ path('api_serie_update', {'id': serie.id}) }}"
+
+        let nblike = parseInt({{ serie.nbLike }})
+
+        buttons.forEach(function (val) {
+
+            val.addEventListener('click', function () {
+                console.log(this)
+                let data = {nbLike: nblike + parseInt(val.value)}
+                fetch(url, {method: 'PUT', body: JSON.stringify(data)})
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data)
+                        document.getElementById('serie-nblike').innerText = data.nbLike
+                        nblike = parseInt(data.nbLike)
+                    })
+            })
+        })
+
+    </script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
