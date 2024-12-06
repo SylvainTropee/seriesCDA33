@@ -90,12 +90,10 @@
         buttons.forEach(function (val) {
 
             val.addEventListener('click', function () {
-                console.log(this)
                 let data = {nbLike: nblike + parseInt(val.value)}
                 fetch(url, {method: 'PUT', body: JSON.stringify(data)})
                     .then(response => response.json())
                     .then(data => {
-                        console.log(data)
                         document.getElementById('serie-nblike').innerText = data.nbLike
                         nblike = parseInt(data.nbLike)
                     })
